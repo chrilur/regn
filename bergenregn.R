@@ -1,21 +1,21 @@
 ### Henter værdata fra Meteorologisk institutt og beregner årsnedbør 2015
 ### for Bergen, målestasjon Florida
-
+setwd("~/Documents/R/bergenregn")
 library(XML)
 library(RCurl)
 
   url <- "http://www.yr.no/sted/Norge/Hordaland/Bergen/Bergen/detaljert_statistikk.html"
-  tbl <- readHTMLTable(url, stringsAsFactors=FALSE)
-  tbl <- tbl[2]
+  tbl <- readHTMLTable(url, stringsAsFactors=FALSE)[2]
+
   
   #Observasjoner fra 1. oktober 2014 (numerisk: 16344)
   # 1. januar 2015 = numerisk: 16436
   idag <- as.numeric(Sys.Date())
-  rows <- idag - 16344
+  rows <- idag - 16375
   iår <- idag - 16436
   igjen <- 16800-idag
   
-  df <- data.frame(matrix(unlist(tbl), nrow=rows))
+  df <- data.frame(matrix(unlist(tbl), nrow=rows, byrow=FALSE))
   regn <- df[,6]
   regn <- gsub(" mm", "", regn)
   regn <- gsub(",", ".", regn)
@@ -49,15 +49,13 @@ get.json <- function(x){
   txt <- character()
   lgth <- length(x[,1])
   for (i in 1:lgth) {
-    txt <- paste0(txt, "['",x[i,1], "',", x[i,2],"],")
+    txt <- paste0(txt, '["',x[i,1], '",', x[i,2],"],")
   }
   txt <- paste0("[", txt, "]", collapse="")
   return(txt)
 }
 
-tbl <- tbl15
-
-tbl2 <- cbind(tbl[,1], tbl[,3])
+tbl2 <- cbind(tbl15[,1], tbl15[,3])
 colnames(tbl2) <- c("Dato", "Nedbør")
 tbl2 <- as.data.frame(tbl2)
 tbl2$Dato <- as.Date(tbl2$Dato, origin = '1970-01-01')
