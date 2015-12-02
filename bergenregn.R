@@ -3,7 +3,7 @@
 
 library(XML)
 library(RCurl)
-regn <- function(){
+
   url <- "http://www.yr.no/sted/Norge/Hordaland/Bergen/Bergen/detaljert_statistikk.html"
   tbl <- readHTMLTable(url, stringsAsFactors=FALSE)
   tbl <- tbl[2]
@@ -41,38 +41,26 @@ regn <- function(){
   cat("Mediannedbør:", med, "mm\n")
   cat("Gjennomsnittlig nedbør:", snitt, "mm\n")
   cat("Det må regne", til.rekord/(igjen+1), "mm hver dag om rekorden skal slås i år.\n\n")
-  return(tbl15)
-}
+  write.table(tbl15, "data/regntabell.csv", sep=",", row.names=FALSE)
+
 
 #Funksjon for å lage tekststrenger av data
-get.txt <- function(x){
+get.json <- function(x){
   txt <- character()
-  for (i in 1:length(x)) {
-    txt <- paste0(txt, x[i], ", ")
+  lgth <- length(x[,1])
+  for (i in 1:lgth) {
+    txt <- paste0(txt, "['",x[i,1], "',", x[i,2],"],")
   }
+  txt <- paste0("[", txt, "]", collapse="")
   return(txt)
 }
 
-tbl <- regn()
+tbl <- tbl15
 
-regndata <- t(tbl[,3])
-dato <- t(tbl[,1])
+tbl2 <- cbind(tbl[,1], tbl[,3])
+colnames(tbl2) <- c("Dato", "Nedbør")
+tbl2 <- as.data.frame(tbl2)
+tbl2$Dato <- as.Date(tbl2$Dato, origin = '1970-01-01')
 
-#Lage jsonfil i rett format av dataene
-spldato <- tbl[,1]
-spldato <- as.character(spldato)
-splår <- substring(spldato, 1,4)
-splmnd <- substring(spldato, 6,7)
-spldag <- substring(spldato, 9,10)
-jsondato <- paste0(splår, ",", splmnd, ",", spldag)
-jsondato <- paste0("[Date.UTC(", jsondato,"),")
-jsondato <- paste0(jsondato, tbl[,3],"],")
-jsondato <- paste(jsondato, collapse="")
-jsondato <- paste0("([", jsondato, "]);")
-write.table(jsondato, 'data/jsondato.json', sep="", row.names=FALSE, col.names=FALSE)
-
-#Klistre sammen javascript-fil som rommer regndata
-jsfil <- paste(
-        'var regn = { name: ',"'",'regn 2015', "',",' data: [',get.txt(regndata),']};',
-        'var dato = { name: ',"'",'Dato', "',",' data: [',get.txt(dato),']};')
-write.table(jsfil, "data/regndata.js")
+jsondata <- get.json(tbl2)
+write(jsondata, file="data/data.JSON")
