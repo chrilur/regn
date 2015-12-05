@@ -61,4 +61,5 @@ tbl2 <- as.data.frame(tbl2)
 tbl2$Dato <- as.Date(tbl2$Dato, origin = '1970-01-01')
 
 jsondata <- get.json(tbl2)
+jsondata <- gsub("(.*)\\,(.*)", "\\1\\2", jsondata)
 write(jsondata, file="data/data.JSON")

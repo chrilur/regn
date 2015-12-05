@@ -16,27 +16,62 @@
     
     <script type="text/javascript">
 $(function () {
+        
     $.getJSON('data/data.JSON', function (data) {    
 
         $('#container').highcharts({
+            
             chart: {
                 zoomType: 'x'
+            },
+            
+            lang: {
+                resetZoom: "Nullstill zoom",
+                months: ["jan.", "feb.", "mar.", "apr.", "mai", "jun.", "jul.", "aug.", "sep.", "okt.", "nov.", "des."]
             },
             title: {
                 text: 'Regn i Bergen 2015'
             },
             subtitle: {
                 text: document.ontouchstart === undefined ?
-                        'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+                        'Klikk og dra for å zoome' : 'Knip i grafikken for å zoome'
             },
             xAxis: {
-               
+               type: 'datetime',
+                endOnTick: false
             },
             yAxis: {
+                max: 3200,
+                startOnTick: false,
+						minPadding: 0,
+						gridLineWidth: 0,
                 title: {
                     text: 'Millimeter'
-                }
+                },
+                plotLines : [{
+					value : 3195,
+					color : 'blue',
+					dashStyle : 'shortdash',
+					width : 1,
+					label : {
+						text : 'Rekord (1921)'
+					}
+				},
+                    {
+					value : 2250,
+					color : 'blue',
+					dashStyle : 'shortdash',
+					width : 1,
+					label : {
+						text : 'Normal årsnedbør'}
+                    }]
             },
+            
+            tooltip: {
+    formatter: function() {
+        return 'T.o.m. ' + this.x/(1000*60*60*24) + ': ' + '<br>' + this.y + ' mm';
+    }
+},            
             legend: {
                 enabled: false
             },
@@ -70,7 +105,9 @@ $(function () {
             series: [{
                 type: 'area',
                 name: 'mm',
-                data: data
+                data: data,
+                pointStart: Date.UTC(2015, 0, 1),
+                pointInterval: 24 * 3600 * 1000
             }]
         });
     });
