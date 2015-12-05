@@ -16,6 +16,18 @@
     
     <script type="text/javascript">
 $(function () {
+    
+     Highcharts.setOptions({
+          lang: {
+                thousandsSep: "",
+                decimalPoint: ",",
+                resetZoom: "Nullstill zoom",
+                months: ["jan.", "feb.", "mar.", "apr.", "mai", "jun.", "jul.", "aug.", "sep.", "okt.", "nov.", "des."]
+            },
+        global: {
+            timezoneOffset: 5 * 60
+        }
+    });
         
     $.getJSON('data/data.JSON', function (data) {    
 
@@ -25,12 +37,8 @@ $(function () {
                 zoomType: 'x'
             },
             
-            lang: {
-                resetZoom: "Nullstill zoom",
-                months: ["jan.", "feb.", "mar.", "apr.", "mai", "jun.", "jul.", "aug.", "sep.", "okt.", "nov.", "des."]
-            },
             title: {
-                text: 'Regn i Bergen 2015'
+                text: 'Bergensregnet 2015',
             },
             subtitle: {
                 text: document.ontouchstart === undefined ?
@@ -38,6 +46,7 @@ $(function () {
             },
             xAxis: {
                type: 'datetime',
+                xDateFormat: "%d-%m-%Y",
                 endOnTick: false
             },
             yAxis: {
@@ -68,9 +77,9 @@ $(function () {
             },
             
             tooltip: {
-    formatter: function() {
-        return 'T.o.m. ' + this.x/(1000*60*60*24) + ': ' + '<br>' + this.y + ' mm';
-    }
+            xDateFormat: '%D-%m-%y',
+            shared: true,
+            valueSuffix: ' mm'    
 },            
             legend: {
                 enabled: false
@@ -104,8 +113,8 @@ $(function () {
 
             series: [{
                 type: 'area',
-                name: 'mm',
-                data: data,
+                name: 'Nedbør',
+                data: data, 
                 pointStart: Date.UTC(2015, 0, 1),
                 pointInterval: 24 * 3600 * 1000
             }]
